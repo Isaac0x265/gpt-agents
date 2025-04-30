@@ -3,24 +3,35 @@ let apiKey = "";
 
 // DOM Elements
 const apiKeyInput = document.getElementById("apiKey");
-const presetButtons = document.querySelectorAll(".preset-btn");
+const presetSelect = document.getElementById("presetSelect");
 const chatMessages = document.getElementById("chatMessages");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
+const currentAgentDisplay = document.getElementById("currentAgent");
+const clearChatButton = document.getElementById("clearChat");
+
+// Check for saved API key
+document.addEventListener("DOMContentLoaded", () => {
+  const savedApiKey = localStorage.getItem("chatgpt_api_key");
+  
+  if (savedApiKey) {
+    apiKey = savedApiKey;
+    apiKeyInput.value = savedApiKey;
+    updateSendButtonState();
+  }
+});
 
 // Event Listeners
 apiKeyInput.addEventListener("input", (e) => {
   apiKey = e.target.value;
+  localStorage.setItem("chatgpt_api_key", apiKey);
   updateSendButtonState();
 });
 
-presetButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    presetButtons.forEach((btn) => btn.classList.remove("active"));
-    button.classList.add("active");
-    currentPreset = button.dataset.preset;
-    updateSendButtonState();
-  });
+presetSelect.addEventListener("change", () => {
+  currentPreset = presetSelect.value;
+  currentAgentDisplay.textContent = presetSelect.options[presetSelect.selectedIndex].text;
+  updateSendButtonState();
 });
 
 userInput.addEventListener("input", updateSendButtonState);
@@ -33,8 +44,29 @@ userInput.addEventListener("keypress", (e) => {
 
 sendButton.addEventListener("click", sendMessage);
 
+clearChatButton.addEventListener("click", () => {
+  chatMessages.innerHTML = "";
+  showToast("Chat cleared!");
+});
+
 function updateSendButtonState() {
   sendButton.disabled = !apiKey || !currentPreset || !userInput.value.trim();
+}
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.classList.add("show");
+  }, 10);
+  
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => document.body.removeChild(toast), 300);
+  }, 3000);
 }
 
 // This function only adds messages to the UI and doesn't store them for API calls
@@ -42,7 +74,29 @@ function addMessage(content, isUser = false) {
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message");
   messageDiv.classList.add(isUser ? "user-message" : "assistant-message");
-  messageDiv.textContent = content;
+  
+  // For assistant messages, create a wrapper to hold both message and copy button
+  if (!isUser) {
+    const messageContent = document.createElement("div");
+    messageContent.className = "message-content";
+    messageContent.textContent = content;
+    
+    const copyButton = document.createElement("button");
+    copyButton.className = "copy-btn";
+    copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+    copyButton.title = "Copy to clipboard";
+    copyButton.addEventListener("click", () => {
+      navigator.clipboard.writeText(content)
+        .then(() => showToast("Copied to clipboard!"))
+        .catch(err => showToast("Failed to copy text"));
+    });
+    
+    messageDiv.appendChild(messageContent);
+    messageDiv.appendChild(copyButton);
+  } else {
+    messageDiv.textContent = content;
+  }
+  
   chatMessages.appendChild(messageDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   // No message history is tracked for API calls - each request is independent
@@ -59,10 +113,30 @@ async function sendMessage() {
   // Create improved loading indicator
   const loadingMessage = document.createElement("div");
   loadingMessage.classList.add("message", "assistant-message", "loading");
+  
+  const loadingDots = document.createElement("div");
+  loadingDots.className = "loading-dots";
+  
+  for (let i = 0; i < 3; i++) {
+    const dot = document.createElement("div");
+    dot.className = "dot";
+    loadingDots.appendChild(dot);
+  }
+  
+  loadingMessage.appendChild(loadingDots);
   chatMessages.appendChild(loadingMessage);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
   try {
+    // Determine which model to use based on the preset
+    let modelToUse;
+    
+    if (currentPreset === "fast") {
+      modelToUse = "gpt-4.1-mini"; // Mini for Fast mode
+    } else if (currentPreset === "corrector") {
+      modelToUse = "gpt-4.1-nano"; // Nano for Text Corrector
+    }
+    
     // Each message is sent as an independent request without chat history
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -71,7 +145,7 @@ async function sendMessage() {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4.1-nano-2025-04-14", // Using the fastest model available
+        model: modelToUse,
         messages: [
           {
             role: "system",
@@ -83,7 +157,7 @@ async function sendMessage() {
           },
           // No chat history is stored or sent
         ],
-        temperature: 0.7,
+        temperature: currentPreset === "corrector" ? 0.3 : 0.7, // Lower temperature for corrector
       }),
     });
 
@@ -91,7 +165,8 @@ async function sendMessage() {
     chatMessages.removeChild(loadingMessage);
 
     if (!response.ok) {
-      throw new Error("API request failed");
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || "API request failed");
     }
 
     const data = await response.json();
@@ -104,7 +179,7 @@ async function sendMessage() {
     }
 
     addMessage(
-      "Error: Failed to get response from ChatGPT. Please check your API key and try again.",
+      `Error: ${error.message || "Failed to get response from ChatGPT. Please check your API key and try again."}`,
       false
     );
     console.error("Error:", error);
@@ -114,12 +189,10 @@ async function sendMessage() {
 function getSystemMessage(preset) {
   // These are placeholder system messages - you can replace them with your own
   const systemMessages = {
+    fast:
+      "You are a fast model; respond very quickly.",
     corrector:
-      "Our output is exactly the same thing the user wrote, but corrected grammatically and orthographically.",
-    prompt:
-      "You are a prompt engineering expert. Help users create effective prompts for various AI models and applications.",
-    planner:
-      "You are a project planning assistant. Help users break down projects into manageable tasks and create effective project plans.",
+      "You are using GPT-4.1-nano. Our output is exactly the same thing the user wrote, but corrected grammatically and orthographically. Be very concise.",
   };
   return systemMessages[preset] || "";
 }

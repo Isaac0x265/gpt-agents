@@ -5,35 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChatGPT Interface</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   </head>
   <body>
     <div class="container">
-      <div class="api-key-section">
-        <input
-          type="password"
-          id="apiKey"
-          placeholder="Enter your OpenAI API Key"
-        />
+      <div class="header">
+        <h1>ChatGPT Interface</h1>
       </div>
+      
+      <div class="settings-panel">
+        <div class="api-key-section">
+          <label for="apiKey">OpenAI API Key</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="apiKey"
+              placeholder="Enter your OpenAI API Key"
+            />
+          </div>
+        </div>
 
-      <div class="preset-buttons">
-        <button class="preset-btn" data-preset="corrector">
-          Text Corrector
-        </button>
-        <button class="preset-btn" data-preset="prompt">Prompt Maker</button>
-        <button class="preset-btn" data-preset="planner">
-          Project Planner
-        </button>
+        <div class="preset-selector">
+          <label for="presetSelect">Select Agent Type</label>
+          <select id="presetSelect" class="preset-select">
+            <option value="" disabled selected>Choose an agent...</option>
+            <option value="fast">⚡ Fast Mode (Mini)</option>
+            <option value="corrector">✍️ Text Corrector (Nano)</option>
+          </select>
+        </div>
       </div>
 
       <div class="chat-container">
+        <div class="chat-header">
+          <span id="currentAgent">No agent selected</span>
+          <button id="clearChat" class="icon-btn">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
         <div id="chatMessages" class="chat-messages"></div>
         <div class="input-container">
           <textarea
             id="userInput"
             placeholder="Type your message here..."
           ></textarea>
-          <button id="sendButton">Send</button>
+          <button id="sendButton" disabled>
+            <i class="fas fa-paper-plane"></i>
+          </button>
         </div>
       </div>
     </div>
