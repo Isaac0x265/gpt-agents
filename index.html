@@ -2,19 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ChatGPT Interface</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Add Showdown library for Markdown rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <!-- Add Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
   </head>
   <body>
     <div class="container">
       <div class="header">
         <h1>ChatGPT Interface</h1>
+        <button id="editApiKey" class="icon-btn hidden">
+          <i class="fas fa-key"></i>
+        </button>
       </div>
       
       <div class="settings-panel">
-        <div class="api-key-section">
+        <div id="apiKeySection" class="api-key-section">
           <label for="apiKey">OpenAI API Key</label>
           <div class="input-wrapper">
             <input
@@ -28,8 +37,8 @@
         <div class="preset-selector">
           <label for="presetSelect">Select Agent Type</label>
           <select id="presetSelect" class="preset-select">
-            <option value="" disabled selected>Choose an agent...</option>
-            <option value="fast">⚡ Fast Mode (Mini)</option>
+            <option value="" disabled>Choose an agent...</option>
+            <option value="fast" selected>⚡ Fast Mode (Mini)</option>
             <option value="corrector">✍️ Text Corrector (Nano)</option>
           </select>
         </div>

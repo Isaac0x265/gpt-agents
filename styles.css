@@ -22,6 +22,13 @@
   --scrollbar-track: #363636;
   --input-bg: #363636;
   --header-bg: #232323;
+  --font-size-base: 20px; /* Increased base font size */
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -33,19 +40,22 @@ body {
   justify-content: center;
   align-items: center;
   color: var(--text-primary);
+  font-size: var(--font-size-base);
+  margin: 0; /* Ensure no margins */
+  padding: 0; /* Ensure no padding */
 }
 
 .container {
-  width: 90%;
-  max-width: 900px;
+  width: 100%; /* Full width */
+  max-width: 100%; /* No max width */
   background-color: var(--bg-secondary);
-  border-radius: 16px;
-  box-shadow: 0 8px 30px var(--shadow-color);
+  border-radius: 0; /* Remove border radius */
+  box-shadow: none; /* Remove shadow */
   padding: 0;
-  height: 90vh;
+  height: 100vh; /* Full height */
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-color);
+  border: none; /* Remove border */
   overflow: hidden;
 }
 
@@ -59,7 +69,7 @@ body {
 }
 
 .header h1 {
-  font-size: 1.5rem;
+  font-size: 2.2rem; /* Increased header size */
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
@@ -71,18 +81,32 @@ body {
   background-color: var(--bg-secondary);
 }
 
-.api-key-section, .preset-selector {
+.api-key-section {
   margin-bottom: 16px;
+  transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+  max-height: 100px;
+  opacity: 1;
+  overflow: hidden;
 }
 
-.api-key-section:last-child, .preset-selector:last-child {
-  margin-bottom: 0;
+.api-key-section.collapsed {
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+.preset-selector {
+  margin-bottom: 16px;
 }
 
 label {
   display: block;
   margin-bottom: 8px;
-  font-size: 0.9rem;
+  font-size: 1.1rem; /* Increased label size */
   font-weight: 500;
   color: var(--text-secondary);
 }
@@ -97,7 +121,7 @@ label {
   padding: 12px 14px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px; /* Increased input text size */
   background-color: var(--input-bg);
   color: var(--text-primary);
   transition: all 0.3s ease;
@@ -115,7 +139,7 @@ label {
   color: var(--text-secondary);
   cursor: pointer;
   padding: 8px;
-  font-size: 1rem;
+  font-size: 1.2rem; /* Increased icon size */
   transition: all 0.2s ease;
   border-radius: 6px;
   display: flex;
@@ -142,7 +166,7 @@ label {
   border-radius: 8px;
   background-color: var(--input-bg);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 16px; /* Increased select text size */
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -176,7 +200,7 @@ label {
 
 #currentAgent {
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 1.3rem; /* Increased agent name size */
   color: var(--text-secondary);
 }
 
@@ -186,13 +210,14 @@ label {
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px; /* Increased gap between messages */
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  align-items: center; /* Center messages horizontally */
 }
 
 .chat-messages::-webkit-scrollbar {
-  width: 6px;
+  width: 8px; /* Increased scrollbar width */
 }
 
 .chat-messages::-webkit-scrollbar-track {
@@ -206,11 +231,11 @@ label {
 }
 
 .message {
-  padding: 14px 18px;
+  padding: 18px 22px; /* Increased padding */
   border-radius: 14px;
   max-width: 85%;
-  line-height: 1.5;
-  font-size: 0.95rem;
+  line-height: 1.6;
+  font-size: 1.5rem; /* Increased message text size further */
   box-shadow: 0 1px 2px var(--shadow-color);
   position: relative;
   animation: messageAppear 0.3s ease;
@@ -238,6 +263,124 @@ label {
 .message-content {
   flex: 1;
   word-break: break-word;
+  font-size: 1.6rem; /* Increased font size for chat area */
+}
+
+/* Markdown styling */
+.message-content h1 {
+  font-size: 2rem; /* Increased size */
+  margin: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.message-content h2 {
+  font-size: 1.8rem; /* Increased size */
+  margin: 10px 0;
+}
+
+.message-content h3 {
+  font-size: 1.7rem; /* Increased size */
+  margin: 8px 0;
+}
+
+.message-content p {
+  margin-bottom: 12px;
+  font-size: 1.6rem; /* Explicitly set paragraph size */
+}
+
+.message-content ul, 
+.message-content ol {
+  margin: 12px 0;
+  padding-left: 25px;
+  font-size: 1.6rem; /* Increased size */
+}
+
+.message-content li {
+  margin-bottom: 5px;
+}
+
+.message-content pre {
+  background-color: var(--bg-tertiary);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 10px 0;
+  white-space: pre-wrap; /* Allow code to wrap */
+  word-break: break-word; /* Break long words if needed */
+  max-width: 100%; /* Ensure it doesn't overflow container */
+}
+
+.message-content code {
+  background-color: var(--bg-tertiary);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 1.4rem; /* Increased code font size */
+  white-space: pre-wrap; /* Allow inline code to wrap */
+}
+
+.message-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  display: block;
+  white-space: pre;
+}
+
+.message-content blockquote {
+  border-left: 4px solid var(--accent-primary);
+  padding-left: 10px;
+  margin: 10px 0 10px 20px;
+  color: var(--text-secondary);
+}
+
+.message-content a {
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+.message-content a:hover {
+  text-decoration: underline;
+}
+
+.message-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+  overflow-x: auto;
+  display: block; /* Makes tables scrollable */
+}
+
+.message-content th, 
+.message-content td {
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  text-align: left;
+}
+
+.message-content th {
+  background-color: var(--bg-tertiary);
+}
+
+/* Add styles for task lists */
+.message-content input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+/* Make images responsive */
+.message-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+/* Horizontal rule styling */
+.message-content hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 15px 0;
 }
 
 .copy-btn {
@@ -247,12 +390,12 @@ label {
   cursor: pointer;
   padding: 4px;
   margin-left: 4px;
-  font-size: 0.9rem;
+  font-size: 1.1rem; /* Increased copy button size */
   opacity: 0.6;
   transition: all 0.2s ease;
   border-radius: 4px;
-  height: 28px;
-  width: 28px;
+  height: 32px; /* Increased height */
+  width: 32px; /* Increased width */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -268,14 +411,14 @@ label {
 .user-message {
   background-color: var(--user-message-bg);
   color: #ffffff;
-  align-self: flex-end;
+  align-self: center; /* Center user messages */
   border-bottom-right-radius: 4px;
 }
 
 .assistant-message {
   background-color: var(--assistant-message-bg);
   color: var(--text-primary);
-  align-self: flex-start;
+  align-self: center; /* Center assistant messages */
   border-bottom-left-radius: 4px;
 }
 
@@ -283,23 +426,23 @@ label {
   display: flex;
   gap: 12px;
   background-color: var(--bg-secondary);
-  padding: 16px 24px;
+  padding: 20px 24px; /* Increased padding */
   border-top: 1px solid var(--border-color);
 }
 
 #userInput {
   flex: 1;
-  padding: 14px 16px;
+  padding: 16px 18px; /* Increased padding */
   border: 1px solid var(--border-color);
   border-radius: 12px;
   resize: none;
-  height: 56px;
-  max-height: 120px;
+  height: 80px; /* Increased height */
+  max-height: 150px; /* Increased max height */
   font-family: inherit;
   background-color: var(--input-bg);
   color: var(--text-primary);
   transition: all 0.3s ease;
-  font-size: 0.95rem;
+  font-size: 1.3rem; /* Increased input text size */
 }
 
 #userInput:focus {
@@ -313,15 +456,15 @@ label {
 }
 
 #sendButton {
-  min-width: 56px;
-  height: 56px;
+  min-width: 80px; /* Increased width */
+  height: 80px; /* Increased height */
   background-color: var(--accent-primary);
   color: #ffffff;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.1rem;
+  font-size: 1.5rem; /* Increased icon size */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,6 +493,7 @@ label {
 .message.loading::before {
   content: "Thinking";
   font-weight: 500;
+  font-size: 1.1rem; /* Increased size */
 }
 
 .loading-dots {
@@ -358,8 +502,8 @@ label {
 }
 
 .loading-dots .dot {
-  width: 8px;
-  height: 8px;
+  width: 10px; /* Increased dot size */
+  height: 10px; /* Increased dot size */
   border-radius: 50%;
   background-color: currentColor;
   opacity: 0.7;
@@ -393,9 +537,9 @@ label {
   transform: translateX(-50%) translateY(100px);
   background-color: var(--accent-primary);
   color: white;
-  padding: 12px 20px;
+  padding: 14px 24px; /* Increased padding */
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 1.1rem; /* Increased text size */
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
@@ -413,9 +557,216 @@ label {
     width: 100%;
     height: 100vh;
     border-radius: 0;
+    max-width: none;
   }
   
   .message {
     max-width: 90%;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .settings-panel {
+    padding: 15px;
+  }
+
+  .chat-header {
+    padding: 12px 15px;
+  }
+
+  .chat-messages {
+    padding: 15px;
+  }
+
+  .message {
+    padding: 14px 16px;
+    font-size: 1.3rem;
+  }
+
+  .message-content {
+    font-size: 1.3rem;
+  }
+
+  .message-content h1 {
+    font-size: 1.6rem;
+  }
+
+  .message-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .message-content h3 {
+    font-size: 1.4rem;
+  }
+
+  .message-content p,
+  .message-content ul,
+  .message-content ol {
+    font-size: 1.3rem;
+  }
+
+  .message-content code {
+    font-size: 1.2rem;
+  }
+
+  .input-container {
+    padding: 12px 15px;
+  }
+
+  #userInput {
+    font-size: 1.2rem;
+    padding: 12px 14px;
+    height: 70px;
+  }
+
+  #sendButton {
+    min-width: 70px;
+    height: 70px;
+    font-size: 1.3rem;
+  }
+}
+
+/* Even smaller screens like small phones */
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .chat-messages {
+    padding: 10px;
+  }
+
+  .message {
+    max-width: 95%;
+    padding: 12px 14px;
+    font-size: 1.2rem;
+  }
+
+  .message-content {
+    font-size: 1.2rem;
+  }
+
+  .message-content h1 {
+    font-size: 1.4rem;
+  }
+
+  .message-content h2 {
+    font-size: 1.3rem;
+  }
+
+  .message-content h3 {
+    font-size: 1.2rem;
+  }
+
+  .message-content p,
+  .message-content ul,
+  .message-content ol {
+    font-size: 1.2rem;
+  }
+
+  .message-content pre {
+    padding: 8px;
+  }
+
+  .input-container {
+    padding: 10px;
+  }
+
+  #userInput {
+    padding: 10px 12px;
+    height: 60px;
+    font-size: 1.1rem;
+  }
+
+  #sendButton {
+    min-width: 60px;
+    height: 60px;
+    font-size: 1.2rem;
+  }
+
+  /* Collapse settings panel more on mobile */
+  .api-key-section.collapsed + .preset-selector {
+    margin-top: 0;
+  }
+
+  /* Fixed bottom position for input on small screens */
+  .input-container {
+    position: sticky;
+    bottom: 0;
+    background-color: var(--bg-secondary);
+    z-index: 5;
+  }
+}
+
+/* For landscape orientation on phones */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container {
+    height: 100vh;
+  }
+
+  .header {
+    padding: 8px 15px;
+  }
+
+  .header h1 {
+    font-size: 1.2rem;
+  }
+
+  .settings-panel {
+    padding: 8px 15px;
+  }
+
+  .chat-header {
+    padding: 8px 15px;
+  }
+
+  .chat-messages {
+    padding: 10px 15px;
+  }
+
+  .message {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+
+  .input-container {
+    padding: 8px 15px;
+  }
+
+  #userInput {
+    height: 45px;
+    max-height: 80px;
+  }
+
+  #sendButton {
+    min-width: 45px;
+    height: 45px;
+  }
+}
+
+/* Adjust for viewport height changes on mobile (when keyboard appears) */
+@media (max-width: 768px) {
+  .container.keyboard-open {
+    height: calc(100vh - 30vh);
+  }
+
+  .container.keyboard-open .chat-messages {
+    max-height: calc(100vh - 240px);
+  }
+}
+
+/* Fix for iOS Safari viewport height issues */
+@supports (-webkit-touch-callout: none) {
+  .container {
+    height: -webkit-fill-available;
+  }
+
+  body, html {
+    height: -webkit-fill-available;
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
 }

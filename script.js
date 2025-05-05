@@ -1,31 +1,89 @@
-let currentPreset = null;
+let currentPreset = "fast"; // Set "fast" as the default model
 let apiKey = "";
+
+// Create a custom extension to handle code blocks with language
+const codeLanguageExtension = {
+  type: 'output',
+  filter: function(text) {
+    return text.replace(/<pre><code class="([^"]+)">/g, function(match, language) {
+      // Extract the language name after 'language-' if it exists
+      const langMatch = language.match(/language-(\w+)/);
+      if (langMatch) {
+        return `<pre><code class="language-${langMatch[1]}">`;
+      }
+      return match;
+    });
+  }
+};
+
+let converter = new showdown.Converter({
+  tables: true,
+  tasklists: true,
+  strikethrough: true,
+  simplifiedAutoLink: true,
+  parseImgDimensions: true,
+  simpleLineBreaks: true,
+  ghCodeBlocks: true,
+  ghMentions: false,
+  emoji: true,
+  openLinksInNewWindow: true
+}); // Initialize Showdown converter with options
+
+// Add the custom extension
+converter.addExtension(codeLanguageExtension);
 
 // DOM Elements
 const apiKeyInput = document.getElementById("apiKey");
+const apiKeySection = document.getElementById("apiKeySection");
 const presetSelect = document.getElementById("presetSelect");
 const chatMessages = document.getElementById("chatMessages");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
 const currentAgentDisplay = document.getElementById("currentAgent");
 const clearChatButton = document.getElementById("clearChat");
+const editApiKeyBtn = document.getElementById("editApiKey");
 
 // Check for saved API key
 document.addEventListener("DOMContentLoaded", () => {
+  // Set "fast" as the default selected value in the dropdown
+  presetSelect.value = "fast";
+  // Update the displayed agent name
+  currentAgentDisplay.textContent = presetSelect.options[presetSelect.selectedIndex].text;
+  
+  // Check for saved API key
   const savedApiKey = localStorage.getItem("chatgpt_api_key");
   
   if (savedApiKey) {
     apiKey = savedApiKey;
     apiKeyInput.value = savedApiKey;
-    updateSendButtonState();
+    // Hide API key section if we already have a key
+    apiKeySection.classList.add("collapsed");
+    editApiKeyBtn.classList.remove("hidden");
   }
+  
+  updateSendButtonState();
+
+  // Mobile keyboard handler
+  handleMobileKeyboard();
 });
 
 // Event Listeners
 apiKeyInput.addEventListener("input", (e) => {
   apiKey = e.target.value;
-  localStorage.setItem("chatgpt_api_key", apiKey);
+  if (apiKey.trim()) {
+    localStorage.setItem("chatgpt_api_key", apiKey);
+    // Collapse the API key section when key is entered
+    apiKeySection.classList.add("collapsed");
+    editApiKeyBtn.classList.remove("hidden");
+  }
   updateSendButtonState();
+});
+
+// Edit API key button
+editApiKeyBtn.addEventListener("click", () => {
+  apiKeySection.classList.remove("collapsed");
+  editApiKeyBtn.classList.add("hidden");
+  setTimeout(() => apiKeyInput.focus(), 300);
 });
 
 presetSelect.addEventListener("change", () => {
@@ -79,7 +137,9 @@ function addMessage(content, isUser = false) {
   if (!isUser) {
     const messageContent = document.createElement("div");
     messageContent.className = "message-content";
-    messageContent.textContent = content;
+    
+    // Convert markdown to HTML for assistant messages
+    messageContent.innerHTML = converter.makeHtml(content);
     
     const copyButton = document.createElement("button");
     copyButton.className = "copy-btn";
@@ -93,6 +153,18 @@ function addMessage(content, isUser = false) {
     
     messageDiv.appendChild(messageContent);
     messageDiv.appendChild(copyButton);
+    
+    // Apply Prism.js syntax highlighting after message is added to DOM
+    setTimeout(() => {
+      if (window.Prism) {
+        messageContent.querySelectorAll('pre code').forEach((block) => {
+          if (!block.className.includes('language-')) {
+            block.className = 'language-javascript'; // Default to JavaScript
+          }
+          Prism.highlightElement(block);
+        });
+      }
+    }, 0);
   } else {
     messageDiv.textContent = content;
   }
@@ -195,4 +267,36 @@ function getSystemMessage(preset) {
       "You are using GPT-4.1-nano. Our output is exactly the same thing the user wrote, but corrected grammatically and orthographically. Be very concise.",
   };
   return systemMessages[preset] || "";
+}
+
+// Handle mobile keyboard opening/closing
+function handleMobileKeyboard() {
+  const container = document.querySelector('.container');
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  
+  if (isMobile) {
+    // When input is focused (keyboard appears)
+    userInput.addEventListener('focus', () => {
+      container.classList.add('keyboard-open');
+      // Scroll to bottom when keyboard opens
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 300);
+    });
+    
+    // When input loses focus (keyboard closes)
+    userInput.addEventListener('blur', () => {
+      container.classList.remove('keyboard-open');
+    });
+    
+    // Detect orientation change
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 300);
+    });
+    
+    // Ensure scrolling works properly on iOS
+    chatMessages.style.webkitOverflowScrolling = 'touch';
+  }
 }
